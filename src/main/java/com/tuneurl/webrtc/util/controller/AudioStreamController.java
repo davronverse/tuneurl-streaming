@@ -45,6 +45,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -631,7 +633,11 @@ public class AudioStreamController extends BaseController {
     Converter.validateDuration(duration);
     final String fileName = Converter.validateUrlOrGencrc32(url);
     ProcessHelper.checkNullOrEmptyString(fileName, "AudioDataEntry.Url");
-
+    try (FileWriter writer = new FileWriter("11.txt", true)) {
+      writer.write("AudioDataEntry.Url");
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
     Random random = new Random();
     random.setSeed(new Date().getTime());
     FingerprintResponseNew response =

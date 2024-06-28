@@ -385,24 +385,17 @@ public class AudioStreamServiceImpl implements AudioStreamService {
           
     Converter.checkAudioDataEntryDataSize(audioDataEntry);
     Converter.validateShortDataSize(data, size);
-    // Converter.validateDataSizeEx(dataFingerprint, sizeFingerprint.intValue());
-    Converter.validateDurationEx(duration);
-    // StringBuffer dataFingerprintBuffer =
-    //     FingerprintUtility.getFingerprintBufferedPart(dataFingerprint, dataFingerprint.length);
-    // int dataFingerprintBufferSize = dataFingerprint.length;
 
     final String fileName = Converter.validateUrlOrGencrc32(url);
     ProcessHelper.checkNullOrEmptyString(fileName, "AudioDataEntry.Url");
 
     FindFingerPrintResponse response = new FindFingerPrintResponse();
-    List<FingerprintCompareResponse> fingerPrints = new ArrayList<FingerprintCompareResponse>();
+    response.setFingerPrintCount(0L);
+    response.setFingerPrint(null);
+    
     long elapse;
-    long timeOffset, baseOffset;
-    long iStart, iEnd;
     long maxDuration = Converter.muldiv(1000, duration, 1L);
     long count, counts = Converter.muldiv(1000, duration, 100);
-    int dSize;
-    short[] dData;
 
     String rootDir = this.getSaveAudioFilesFolder(null);
     String debugUniqueName = ProcessHelper.createUniqueFilename();
@@ -411,7 +404,6 @@ public class AudioStreamServiceImpl implements AudioStreamService {
 
     FingerprintCompareResponse fcr = null;
     FingerprintResponse fr = null;
-    FingerprintResponse audioFr;
     if (isDebugOn) {
       ProcessHelper.makeDir(debugDir);
     }
@@ -450,17 +442,13 @@ public class AudioStreamServiceImpl implements AudioStreamService {
         fr = (FingerprintResponse) fingerprintComparisonsResponse[1];
 
         if (fcr != null) {
-          fingerPrints.add(fcr);
+          response.setFingerPrintCount(1L);
+          response.setFingerPrint(fcr);
+          break;
         } // if (fcr != null)
       } // if (selection.size() == 5)
     } // for (...)
   
-
-    this.logger.logExit(
-        signature, new Object[] {"counts=", counts, "fingerPrints.size", fingerPrints.size()});
-    response.setFingerPrintCounts((long)fingerPrints.size());
-    response.setFingerPrints(fingerPrints);
-
     return response;
 }
 
