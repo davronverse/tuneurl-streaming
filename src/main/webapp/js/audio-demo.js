@@ -259,26 +259,26 @@ class AudioStreamPlayer {
             }    
         }
     
-        this.isPaused = false;
-        this.isPlaying = true;
-        this.isFirstPlay = false;
-        // console.log('AudioStreamPlayer: isPlaying', this.isPlaying);
-    
         this.source = this.audioContext.createBufferSource();
         this.source.connect(this.audioContext.destination);
 
-        // ************************************************************************************************
-        // Record the start time
-        this.startedPlayTime = Date.now();
-        // Start the timer
-        this.timerInterval = setInterval(() => {
-            const currentTime = Date.now();
-            this.totalPlayTime += (currentTime - this.startedPlayTime);  // Convert milliseconds to seconds
-            updatePocTitle(this.totalPlayTime);
-            this.startedPlayTime = currentTime;  // Reset start time for the next interval
-        }, 10);  // Update every 10 millisecond
-        // ************************************************************************************************
+        if (isforce || this.isFirstPlay) {
+            // ************************************************************************************************
+            // Record the start time
+            this.startedPlayTime = Date.now();
+            // Start the timer
+            this.timerInterval = setInterval(() => {
+                const currentTime = Date.now();
+                this.totalPlayTime += (currentTime - this.startedPlayTime);  // Convert milliseconds to seconds
+                updatePocTitle(this.totalPlayTime);
+                this.startedPlayTime = currentTime;  // Reset start time for the next interval
+            }, 10);  // Update every 10 millisecond
+            // ************************************************************************************************
+        }
 
+        this.isPaused = false;
+        this.isPlaying = true;
+        this.isFirstPlay = false;
 
         if (this.pausedAt) {
             this.source.buffer = this.pause_buff;
@@ -541,7 +541,7 @@ async function initAllTags(fingerPrint, timeOffset) {
         url.index = offset;
         activeAudioTags.liveTags.push({...url});
         activeAudioTags.tuneUrlCounts += 1;
-        console.log(url);
+        console.log({...url});
     }
 }
 
@@ -928,7 +928,7 @@ async function startCanvas() {
             }); 
 
             // start process C to show pop-up/notification by the TurnUrlTags
-            setInterval(() => showPopupByAudioStream(audioStreamPlayer.totalPlayTime), 10);
+            setInterval(() => showPopupByAudioStream(audioStreamPlayer.totalPlayTime), 100);
             showHidePlayButton(true);
         }
     }
