@@ -38,7 +38,7 @@ const TEST_MP3_FILE = base_host + "/audio/10240-audio-streams-0230000.mp3";
 // const TEST_MP3_FILE = base_host + "/audio/webrtc-source_J7XLHMyC.mp3";
 const TRIGGERSOUND_AUDIO_URL = base_host + "/audio/10240-triggersound.wav";
 
-const IF_LOAD_FROM_URL = false;
+const IF_LOAD_FROM_URL = true;
 const APP_TITLE = "Audio Demo Test";
 
 const AMPLITUDE_SIZE = 512;
@@ -81,6 +81,7 @@ var activeAudioTags = {
     tuneUrlCounts: 0
 };
 let index_DataEntry = 0;
+let g_remove_count = 0;
 let remainStream = new Float32Array(0);
 
 class ContinuousCaller extends EventTarget {
@@ -165,6 +166,8 @@ class AudioStreamPlayer {
         this.totalPlayTime = 0;
         this.timerInterval = null;
         this.startedPlayTime = 0;
+
+        this.totaltime = 0;
         // ----------------------
     }
 
@@ -262,20 +265,6 @@ class AudioStreamPlayer {
         this.source = this.audioContext.createBufferSource();
         this.source.connect(this.audioContext.destination);
 
-        if (isforce || this.isFirstPlay) {
-            // ************************************************************************************************
-            // Record the start time
-            this.startedPlayTime = Date.now();
-            // Start the timer
-            this.timerInterval = setInterval(() => {
-                const currentTime = Date.now();
-                this.totalPlayTime += (currentTime - this.startedPlayTime);  // Convert milliseconds to seconds
-                updatePocTitle(this.totalPlayTime);
-                this.startedPlayTime = currentTime;  // Reset start time for the next interval
-            }, 10);  // Update every 10 millisecond
-            // ************************************************************************************************
-        }
-
         this.isPaused = false;
         this.isPlaying = true;
         this.isFirstPlay = false;
@@ -290,11 +279,25 @@ class AudioStreamPlayer {
             this.source.buffer = this.audioQueue.shift();
             this.startTime = this.audioContext.currentTime;
             this.source.start(0);
+            this.totaltime += (this.source.buffer.duration * 1000);
         }
+
+        this.startedPlayTime = Date.now();
+        // ************************************************************************************************
+        // Record the start time
+        // Start the timer
+        this.timerInterval = setInterval(() => {
+            const currentTime = Date.now();
+            this.totalPlayTime += (currentTime - this.startedPlayTime);  // Convert milliseconds to seconds
+            updatePocTitle(this.totalPlayTime);
+            this.startedPlayTime = currentTime;  // Reset start time for the next interval
+        }, 10);  // Update every 10 millisecond
+        // ************************************************************************************************
 
         this.source.onended = () => {
             // console.log('play_stream: onended');
-
+            clearInterval(this.timerInterval);
+    
             this.isPlaying = false;
             this.play(false);
         };
@@ -306,14 +309,15 @@ class AudioStreamPlayer {
         // -----------------------------------------------------------------------
         // Clear the interval and update the total play time
         clearInterval(this.timerInterval);
+
         const currentTime = Date.now();
         this.totalPlayTime += (currentTime - this.startedPlayTime);
         // this.startedPlayTime = 0;
-
+        
         this.pause_buff = this.source.buffer;
         this.source.stop();
         this.pausedAt = this.audioContext.currentTime - this.startTime;
-        this.isPaused = true;
+        this.isPaused = true;        
         // -----------------------------------------------------------------------
     }
 
@@ -416,9 +420,20 @@ async function generateDataEntries()
 // start process B to find the trigerSound
 async function findTriggerSound()
 {
+    if (g_remove_count) {
+        if (audioAudioDataEntries.length > g_remove_count) {
+            audioAudioDataEntries.splice(0, g_remove_count);
+            g_remove_count = 0;
+        }
+        else {
+            audioAudioDataEntries.splice(0, audioAudioDataEntries.length);
+            g_remove_count -= audioAudioDataEntries.length;
+            return;        
+        }
+    }
+
     if (audioAudioDataEntries.length < 2) return;
     if (!triggerFingerprintData) return;
-
 
     let offset  = 0;
     let count = 2;
@@ -466,7 +481,15 @@ async function getTurnUrlTags(datus)
         if (data.count) {
             let remove_count = Math.floor((data.fingerPrint.offset/1e3 + 6) / STREAM_DURATION);
             index_DataEntry += remove_count;
-            audioAudioDataEntries.splice(0, remove_count);
+            if (remove_count > audioAudioDataEntries.length) {
+                g_remove_count = remove_count - audioAudioDataEntries.length;
+                audioAudioDataEntries.splice(0, audioAudioDataEntries.length);
+            }
+            else
+            {
+                g_remove_count = 0;
+                audioAudioDataEntries.splice(0, remove_count);
+            }
 
             initAllTags(data.fingerPrint, timeOffset);
 
