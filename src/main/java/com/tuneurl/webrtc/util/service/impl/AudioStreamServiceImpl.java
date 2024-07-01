@@ -395,7 +395,7 @@ public class AudioStreamServiceImpl implements AudioStreamService {
 
     long elapse;
     long maxDuration = Converter.muldiv(1000, duration, 1L) - 1500;
-    long count, counts = Converter.muldiv(1000, duration, 100);
+    long count, counts = Converter.muldiv(1000, maxDuration, 100);
 
     String rootDir = this.getSaveAudioFilesFolder(null);
     String debugUniqueName = ProcessHelper.createUniqueFilename();
