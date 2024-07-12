@@ -57,6 +57,10 @@ if [ "x$method" = "xfingerprint" ]; then
 
     /home/justin/audio/fingerprintexec fingerprint < "$outputFilename" 1> "$resultFilename" 2>&1 ;
 
+elif [ "x$method" = "xfingerprintprev" ]; then
+
+    /home/justin/audio/fingerprintexec fingerprintprev < "$outputFilename" 1> "$resultFilename" 2>&1 ;
+
 elif [ "x$method" = "xstream" ]; then
 
     /home/justin/audio/fingerprintexec stream < "$outputFilename" 1> "$resultFilename" 2>&1 ;

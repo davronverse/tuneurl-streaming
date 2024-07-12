@@ -1,0 +1,1 @@
+jsCompareFingerprint /home/justin/audio/runExternalFingerprintModule.sh /tmp/190a78b9aef22820418498.out
