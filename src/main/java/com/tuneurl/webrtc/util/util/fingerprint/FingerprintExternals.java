@@ -11,7 +11,6 @@ import com.tuneurl.webrtc.util.value.Constants;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
 
@@ -64,7 +63,7 @@ public class FingerprintExternals {
       final short[] two,
       final int twosize)
       throws BaseServiceException {
-    
+
     final String signature = "runExternalFingerprintModule";
     FingerprintCompareResponse response = new FingerprintCompareResponse();
     FingerprintUtility.resetResponseValue(response, timeOffset);
@@ -84,8 +83,9 @@ public class FingerprintExternals {
     // two size
     // [0, ..., two size-1]
 
-    // Generate the one and onesize variables   
-    fingerprintUtility.writeFingerprintDataWithBuffer(outputFilename, dataFingerprint, two, twosize);
+    // Generate the one and onesize variables
+    fingerprintUtility.writeFingerprintDataWithBuffer(
+        outputFilename, dataFingerprint, two, twosize);
 
     // 5. the JSON string should be written to this file
     // 6. Run ./jni/fingerprintexec via runExternalFingerprintModule.sh
@@ -96,12 +96,12 @@ public class FingerprintExternals {
     if (json == null) {
       return response;
     }
-    try (FileWriter writer = new FileWriter("11.txt", true)) {
-      writer.write(""+timeOffset);
-      writer.write(json);
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
+    // try (FileWriter writer = new FileWriter("11.txt", true)) {
+    //   writer.write(""+timeOffset);
+    //   writer.write(json);
+    // } catch (IOException e) {
+    //     e.printStackTrace();
+    // }
 
     CompareStringResult result = null;
     if (json.isEmpty() || json.charAt(0) != '{') {
@@ -111,7 +111,7 @@ public class FingerprintExternals {
     try {
       ObjectMapper mapper = new ObjectMapper();
       result = mapper.readValue(json, CompareStringResult.class);
-  
+
     } catch (Exception ex) {
       logger.logExit(
           signature, "mapper.readValue(json) Failed: " + ex.getMessage() + ",json[" + json + "]");
@@ -137,7 +137,11 @@ public class FingerprintExternals {
   public FingerprintResponseNew runExternalFingerprinting(
       Random random, final String rootDir, final short[] one, final int onesize)
       throws BaseServiceException {
-
+    // try (FileWriter writer = new FileWriter("11.txt", true)) {
+    //   writer.write(json);
+    // } catch (IOException e) {
+    //     e.printStackTrace();
+    // }
     final String signature = "runExternalFingerprintModule";
     FingerprintResponseNew response = new FingerprintResponseNew();
     // 1. Size less than 1L signify Fingerprint extraction failure.
@@ -165,6 +169,7 @@ public class FingerprintExternals {
     String json =
         executeFingerprintExecAsProcess(
             uniqueName, rootDir, outputFilename, signature, "fingerprint");
+
     if (json == null) {
       return response;
     }
@@ -180,14 +185,14 @@ public class FingerprintExternals {
       response = mapper.readValue(json, FingerprintResponseNew.class);
     } catch (Exception ex) {
       logger.logExit(
-          signature, "mapper.readValue(json) Failed: " + ex.getMessage() + ",json[" + json + "]");                  
+          signature, "mapper.readValue(json) Failed: " + ex.getMessage() + ",json[" + json + "]");
       return response;
     }
-   
+
     return response;
   }
 
-    /**
+  /**
    * Alternative to ExtractFingerprint(const int16_t *, int):Fingerprint * method with stable
    * results. This make use of main.cpp compiled in the executable at ./jni/fingerprintexec .
    *
@@ -227,8 +232,7 @@ public class FingerprintExternals {
     // 6. Run ./jni/fingerprintexec via runExternalFingerprintModule.sh
     // 7. read the JSON string
     String json =
-        executeFingerprintExecAsProcess(
-            uniqueName, rootDir, outputFilename, signature, "stream");
+        executeFingerprintExecAsProcess(uniqueName, rootDir, outputFilename, signature, "stream");
     if (json == null) {
       return response;
     }
@@ -250,7 +254,7 @@ public class FingerprintExternals {
     response.setSize(result.getSize());
     response.setData(result.getData());
     StringBuffer sb = getStringBuilder(response);
-    
+
     response.setDataEx(sb.toString());
     return response;
   }
