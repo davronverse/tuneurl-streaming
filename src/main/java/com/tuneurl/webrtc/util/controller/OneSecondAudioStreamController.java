@@ -35,7 +35,6 @@ import com.tuneurl.webrtc.util.controller.dto.AudioDataEntry;
 import com.tuneurl.webrtc.util.controller.dto.EvaluateAudioStreamEntry;
 import com.tuneurl.webrtc.util.controller.dto.EvaluateAudioStreamResponse;
 import com.tuneurl.webrtc.util.util.*;
-import com.tuneurl.webrtc.util.util.fingerprint.FingerprintUtility;
 import com.tuneurl.webrtc.util.value.Constants;
 import com.tuneurl.webrtc.util.value.UserType;
 import io.swagger.annotations.ApiOperation;
@@ -115,14 +114,14 @@ public class OneSecondAudioStreamController extends BaseController {
       HttpServletResponse httpResponse) {
     final String signature = "evaluateOneSecondAudioStream";
 
-    EvaluateAudioStreamResponse cachedResult =
-        this.redis.getOneSecondAudioStreamCache(
-            httpRequest.getParameter("offset"),
-            evaluateAudioStreamEntry.getAudioData().getUrl(),
-            evaluateAudioStreamEntry.getDataFingerprint());
-    if (cachedResult != null) {
-      return ResponseEntity.ok().body(cachedResult);
-    }
+    // EvaluateAudioStreamResponse cachedResult =
+    //     this.redis.getOneSecondAudioStreamCache(
+    //         httpRequest.getParameter("offset"),
+    //         evaluateAudioStreamEntry.getAudioData().getUrl(),
+    //         evaluateAudioStreamEntry.getDataFingerprint());
+    // if (cachedResult != null) {
+    //   return ResponseEntity.ok().body(cachedResult);
+    // }
 
     String sOffset = httpRequest.getParameter("offset");
     Long dataOffset = CommonUtil.parseLong(sOffset, 0L);
@@ -172,17 +171,13 @@ public class OneSecondAudioStreamController extends BaseController {
 
     EvaluateAudioStreamResponse response =
         audioStreamBaseService.evaluateOneSecondAudioStream(
-            duration,
-            dataOffset,
-            data,
-            fingerprintRate,
-            dataFingerprint);
+            duration, dataOffset, data, fingerprintRate, dataFingerprint);
 
-    this.redis.setOneSecondAudioStreamCache(
-        httpRequest.getParameter("offset"),
-        evaluateAudioStreamEntry.getAudioData().getUrl(),
-        evaluateAudioStreamEntry.getDataFingerprint(),
-        response);
+    // this.redis.setOneSecondAudioStreamCache(
+    //     httpRequest.getParameter("offset"),
+    //     evaluateAudioStreamEntry.getAudioData().getUrl(),
+    //     evaluateAudioStreamEntry.getDataFingerprint(),
+    //     response);
 
     return ResponseEntity.ok().body(response);
   }

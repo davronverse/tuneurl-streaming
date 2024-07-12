@@ -139,13 +139,14 @@ public class RedisInstance {
 
     return result;
   }
+
   public FingerprintResponseNew getFingerprintCacheNew(String url) {
     if (jedis == null) {
       return null;
     }
 
     FingerprintResponseNew result = null;
-    String cached = jedis.get("fingerprint--" + url);
+    String cached = jedis.get("fingerprintNew--" + url);
     if (cached != null) {
       try {
         cached = cached.replaceAll("\"", "\\\"");
@@ -167,10 +168,11 @@ public class RedisInstance {
     }
     jedis.set("fingerprint--" + url, fingerprintResponse.toJson());
   }
+
   public void setFingerprintCacheNew(String url, FingerprintResponseNew fingerprintResponse) {
     if (jedis == null) {
       return;
     }
-    jedis.set("fingerprint--" + url, fingerprintResponse.toJson());
+    jedis.set("fingerprintNew--" + url, fingerprintResponse.toJson());
   }
 }

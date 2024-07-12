@@ -166,7 +166,7 @@ class AudioStreamPlayer {
         this.totalPlayTime = 0;
         this.timerInterval = null;
         this.startedPlayTime = 0;
-
+        
         this.totaltime = 0;
         // ----------------------
     }
@@ -279,12 +279,11 @@ class AudioStreamPlayer {
             this.source.buffer = this.audioQueue.shift();
             this.startTime = this.audioContext.currentTime;
             this.source.start(0);
-            this.totaltime += (this.source.buffer.duration * 1000);
         }
 
-        this.startedPlayTime = Date.now();
         // ************************************************************************************************
         // Record the start time
+        this.startedPlayTime = Date.now();
         // Start the timer
         this.timerInterval = setInterval(() => {
             const currentTime = Date.now();
@@ -317,7 +316,7 @@ class AudioStreamPlayer {
         this.pause_buff = this.source.buffer;
         this.source.stop();
         this.pausedAt = this.audioContext.currentTime - this.startTime;
-        this.isPaused = true;        
+        this.isPaused = true;
         // -----------------------------------------------------------------------
     }
 
@@ -421,19 +420,21 @@ async function generateDataEntries()
 async function findTriggerSound()
 {
     if (g_remove_count) {
-        if (audioAudioDataEntries.length > g_remove_count) {
+        let length = audioAudioDataEntries.length;
+        if (length > g_remove_count) {
             audioAudioDataEntries.splice(0, g_remove_count);
             g_remove_count = 0;
         }
         else {
-            audioAudioDataEntries.splice(0, audioAudioDataEntries.length);
-            g_remove_count -= audioAudioDataEntries.length;
+            audioAudioDataEntries.splice(0, length);
+            g_remove_count -= length;
             return;        
         }
     }
 
     if (audioAudioDataEntries.length < 2) return;
     if (!triggerFingerprintData) return;
+
 
     let offset  = 0;
     let count = 2;
@@ -481,9 +482,10 @@ async function getTurnUrlTags(datus)
         if (data.count) {
             let remove_count = Math.floor((data.fingerPrint.offset/1e3 + 6) / STREAM_DURATION);
             index_DataEntry += remove_count;
-            if (remove_count > audioAudioDataEntries.length) {
-                g_remove_count = remove_count - audioAudioDataEntries.length;
-                audioAudioDataEntries.splice(0, audioAudioDataEntries.length);
+            let length = audioAudioDataEntries.length;
+            if (remove_count > length) {
+                g_remove_count = remove_count - length;
+                audioAudioDataEntries.splice(0, length);
             }
             else
             {
@@ -804,7 +806,7 @@ async function showPopupByAudioStream(totalPlayTime) {
         let diff = totalPlayTime - activeAudioTags.liveTags[i].dataPosition;
 
         if (diff > 0 && diff <= threshold) {
-            activeAudioTags.liveTags.splice(i, 1);
+            // activeAudioTags.liveTags.splice(i, 1);
             activateChannelModal(0);
 
             break;
