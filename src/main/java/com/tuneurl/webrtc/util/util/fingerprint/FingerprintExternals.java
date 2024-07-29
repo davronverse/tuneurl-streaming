@@ -238,14 +238,18 @@ public class FingerprintExternals {
     // 7. read the JSON string
     String json =
         executeFingerprintExecAsProcess(uniqueName, rootDir, outputFilename, signature, action);
+    
     if (json == null) {
       return response;
     }
+
 
     FingerprintEntry result = null;
     if (json.isEmpty() || json.charAt(0) != '{') {
       return response;
     }
+
+
     // 8. JSON string should be in FingerprintEntry structure
     try {
       ObjectMapper mapper = new ObjectMapper();
@@ -260,6 +264,14 @@ public class FingerprintExternals {
     response.setData(result.getData());
     StringBuffer sb = getStringBuilder(response);
 
+        // if (action == "fingerprintprev")
+        // {
+        //   try (FileWriter writer = new FileWriter("11.txt", true)) {
+        //     writer.write(sb.toString());
+        //   } catch (IOException e) {
+        //     e.printStackTrace();
+        //   }
+        // }    
     response.setDataEx(sb.toString());
     return response;
   }

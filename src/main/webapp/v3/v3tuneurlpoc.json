@@ -330,6 +330,46 @@
         }
       }
     },
+    "/dev/v3/extractfingerprint": {
+      "post": {
+        "tags": [
+          "fingerprint"
+        ],
+        "operationId": "extractfingerprint",
+        "summary": "Convert the given data bits into fingerprint.",
+        "description": "<br /><b>Implementation Notes</b>:\n<br /><b>A. Input is <code>AudioData</code>.</b>\n  <ul>\n    <li><code>AudioDataEntry.Url</code>: The Audio Stream URL.</li>\n    <li><code>AudioDataEntry.Data</code>: Audio data bits. Array of Byte.</li>\n    <li><code>AudioDataEntry.Size</code>: Size of Data.</li>\n    <li><code>AudioDataEntry.sampleRate</code>: Audio sampel rate. Normally 44100.</li>\n    <li><code>AudioDataEntry.duration</code>: Length of audio bits in seconds.</li>\n    <li><code>AudioDataEntry.fingerprintRate</code>: the Data is converted into this sample rate. Normall 11025.</li>\n  </ul>\n<br /><b>B. Output is FingerprintResponse</b>\n  <ul>\n    <li><code>FingerprintResponse.size</code>: size of Fingerprint.</li>\n    <li><code>FingerprintResponse.data</code>: the Fingeprint. Array of Byte.</li>\n  </ul>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/FingerprintResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+
     "/dev/v3/evaluateAudioStream": {
       "post": {
         "tags": [
